@@ -1,0 +1,10 @@
+main: za.net.hanro50.cordiac.bridge.SpigotPlugin
+name: Cordiac
+version: 1.0-SNAPSHOT
+description: This plugin does so much stuff it can't be contained!
+api-version: 1.18
+load: STARTUP
+author: Hanro50
+prefix: Cordiac
+libraries:
+   - net.dv8tion:JDA:5.0.0-beta.5

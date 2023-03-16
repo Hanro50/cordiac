@@ -1,0 +1,20 @@
+# Sets the mode of the plugin. Right now server is the only valid setting.
+Mode: Server
+# Discord token
+DiscordToken: Token Here
+
+Rules:
+  # Uses webhooks to post server messages
+  UseWebHooks:    true
+  # Posts join messages in chat
+  JoinMessages:   true
+  # Posts leave messages in chat
+  LeaveMessages:  true
+  # Posts messages sent using the "/say" command in chat 
+  ServerMessages: true
+  # Force people into linking their discord and MC accounts to join 
+  ForceLink:      false
+
+# People The bot trusts (The author of the bot is always trusted!)
+TrustedUsers:
+  - 147677951683461120

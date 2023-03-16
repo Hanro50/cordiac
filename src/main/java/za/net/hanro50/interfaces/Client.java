@@ -1,6 +1,7 @@
 package za.net.hanro50.interfaces;
 
 import za.net.hanro50.interfaces.Data.ClientConfig;
+import za.net.hanro50.interfaces.Data.Player;
 
 public abstract class Client {
     protected Server server;
@@ -26,6 +27,13 @@ public abstract class Client {
      * Sends discord data to clients to store locally.
      */
     public abstract void sendData(ClientConfig config);
+
+    /**
+     * Send player information
+     * 
+     * @param player
+     */
+    public abstract void sendPlayerInformation(Player[] player, boolean refresh);
 
     /**
      * Tells the client to kick a player

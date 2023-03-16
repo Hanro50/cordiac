@@ -9,6 +9,7 @@ import za.net.hanro50.interfaces.Data.Cause;
 public abstract class Server {
     private List<Client> Clients = new ArrayList<>();
 
+    
     final void addClient(Client client) {
         this.Clients.add(client);
     }
@@ -41,6 +42,8 @@ public abstract class Server {
     public abstract void sendAdvancement(Client client, String AdvancementId, String playerUUID);
 
     public abstract void requestData(Client client);
+
+    public abstract void getPlayerInformation(Client client, String[] UUIDs);
 
     public abstract void sendDeathMessage(Client client, String DeathId, String playerUUID, Cause cause);
 
