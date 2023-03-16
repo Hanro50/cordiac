@@ -45,6 +45,8 @@ public abstract class Server {
 
     public abstract void getPlayerInformation(Client client, String[] UUIDs);
 
+    public abstract void stop();
+
     public abstract void sendDeathMessage(Client client, String DeathId, String playerUUID, Cause cause);
 
     public void sendDeathMessage(Client client, String DeathId, String playerUUID) {
