@@ -18,10 +18,16 @@ public interface Handler {
 
     String translate(String id);
 
+    // PlayerLinker
     void linkServer(Channel channel, String ChannelName);
 
     String getChannelName(Channel channel);
 
     Channel getChannel(String ChannelName);
 
+    void linkPlayer(long discordID, UUID uuid);
+
+    UUID getUUID(long discordID);
+
+    Long getDiscordID(UUID uuid);
 }

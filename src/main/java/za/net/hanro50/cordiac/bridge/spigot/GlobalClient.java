@@ -4,8 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+
 import java.awt.Color;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -16,13 +21,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.jetbrains.annotations.NotNull;
 
 import net.md_5.bungee.api.ChatColor;
 import za.net.hanro50.interfaces.Client;
 import za.net.hanro50.interfaces.Server;
 import za.net.hanro50.interfaces.Data.PlayerData;
 
-public class GlobalClient extends Client implements Listener {
+public class GlobalClient extends Client implements Listener, CommandExecutor {
     YamlConfiguration configYaml = new YamlConfiguration();
 
     public GlobalClient(Server server, SpigotPlugin spigotPlugin)
@@ -88,6 +94,28 @@ public class GlobalClient extends Client implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerLeave(PlayerQuitEvent evt) {
         this.server.playerLeave(this, evt.getPlayer().getUniqueId());
+    }
+
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+            @NotNull String[] args) {
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            switch (command.getName()) {
+                case ("link"):
+                    String code = String.format("%06d", ThreadLocalRandom.current().nextInt(100000, 1000000));
+                    player.sendMessage("DM the bot the following message [" + ChatColor.RED + "!link " + code
+                            + ChatColor.RESET + "] to link your account");
+                    server.sendLinkRequest(player.getUniqueId(), code);
+                    break;
+                case ("unlink"):
+                    server.sendUnLinkRequest(player.getUniqueId());
+
+            }
+        }
+
+        // If the player (or console) uses our command correct, we can return true
+        return true;
+
     }
 
 }

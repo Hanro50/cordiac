@@ -2,12 +2,8 @@ package za.net.hanro50.interfaces.Data;
 
 public class ChannelLinker extends Linker<String, String> {
 
-    public ChannelLinker() {
-        super();
-    }
-
-    public void linkServer(Channel channel, String ChannelName) {
-        data.put(ChannelName, channel.getID());
+    public void link(Channel channel, String ChannelName) {
+        super.link(ChannelName, channel.getID());
     }
 
     public String getChannelName(Channel channel) {

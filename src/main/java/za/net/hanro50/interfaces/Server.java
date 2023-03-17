@@ -32,6 +32,8 @@ public abstract class Server {
      * @param code
      */
     public abstract void sendLinkRequest(UUID UUID, String code);
+    public abstract void sendUnLinkRequest(UUID UUID);
+
 
     public abstract void sendMessage(Client client,UUID UUID, String message);
 

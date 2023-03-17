@@ -5,9 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.jetbrains.annotations.NotNull;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import club.minnced.discord.webhook.external.JDAWebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
@@ -31,6 +35,7 @@ public class Discord extends Server {
     final Handler handler;
     final JDA jda;
     final Logger log;
+    final Cache<String, UUID> pendingLink = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
     long adminID;
 
     Map<String, Webhook> cachedWebHooks = new HashMap<>();
@@ -47,13 +52,8 @@ public class Discord extends Server {
                 // Set activity (like "playing Something")
                 .setActivity(Activity.watching("TV")).build();
         jda.addEventListener(new DiscordListener(this));
-jda.awaitReady();
+        jda.awaitReady();
         adminID = jda.retrieveApplicationInfo().complete().getOwner().getIdLong();
-    }
-
-    @Override
-    public void sendLinkRequest(UUID UUID, String code) {
-
     }
 
     private void sendMsg(Webhook wb, String name, String PFP, String message) {
@@ -156,4 +156,12 @@ jda.awaitReady();
         throw new UnsupportedOperationException("Unimplemented method 'requestData'");
     }
 
+    @Override
+    public void sendUnLinkRequest(UUID UUID) {
+    }
+
+    @Override
+    public void sendLinkRequest(UUID UUID, String code) {
+        pendingLink.put(code, UUID);
+    }
 }

@@ -15,6 +15,10 @@ public class Linker<Key, Type> {
         System.out.println("Linker file loaded!");
     }
 
+    public void link(Key k, Type t) {
+        data.put(k, t);
+    }
+
     protected Map<Type, Key> getInverse() {
         if (!(data instanceof HashBiMap))
             data = HashBiMap.create(data);
