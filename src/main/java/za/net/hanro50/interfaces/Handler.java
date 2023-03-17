@@ -1,18 +1,27 @@
 package za.net.hanro50.interfaces;
 
+import za.net.hanro50.interfaces.Data.Channel;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public interface Handler {
     String getDiscordToken();
 
-    List<String> getTrusted();
+    List<Long> getTrusted();
 
     Map<String, Boolean> Settings();
 
-    void addTrusted(String id);
+    void addTrusted(Long id);
 
-    String getMCUsername(String UUID);
+    String getMCUsername(UUID UUID);
 
     String translate(String id);
+
+    void linkServer(Channel channel, String ChannelName);
+
+    String getChannelName(Channel channel);
+
+    Channel getChannel(String ChannelName);
+
 }

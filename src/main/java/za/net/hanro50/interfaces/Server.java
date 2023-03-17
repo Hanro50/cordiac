@@ -1,25 +1,25 @@
 package za.net.hanro50.interfaces;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import za.net.hanro50.interfaces.Data.Cause;
 
 public abstract class Server {
-    private List<Client> Clients = new ArrayList<>();
+    private Map<String, Client> Clients = new HashMap<>();
 
-    
     final void addClient(Client client) {
-        this.Clients.add(client);
+        this.Clients.put(client.getName(), client);
     }
 
-    public final List<Client> getClients() {
-        return Collections.unmodifiableList(Clients);
+    public final Map<String, Client> getClients() {
+        return Collections.unmodifiableMap(Clients);
     }
 
     final void removeClient(Client client) {
-        this.Clients.remove(client);
+        this.Clients.remove(client.getName());
     }
 
     /**
@@ -31,25 +31,25 @@ public abstract class Server {
      * @param UUID
      * @param code
      */
-    public abstract void sendLinkRequest(String UUID, String code);
+    public abstract void sendLinkRequest(UUID UUID, String code);
 
-    public abstract void sendMessage(Client client, String message);
+    public abstract void sendMessage(Client client,UUID UUID, String message);
 
-    public abstract void playerJoin(Client client, String UUID);
+    public abstract void playerJoin(Client client, UUID UUID);
 
-    public abstract void playerLeave(Client client, String UUID);
+    public abstract void playerLeave(Client client, UUID UUID);
 
-    public abstract void sendAdvancement(Client client, String AdvancementId, String playerUUID);
+    public abstract void sendAdvancement(Client client, String AdvancementId, UUID playerUUID);
 
     public abstract void requestData(Client client);
 
-    public abstract void getPlayerInformation(Client client, String[] UUIDs);
+    public abstract void getPlayerInformation(Client client, UUID[] UUIDs);
 
     public abstract void stop();
 
-    public abstract void sendDeathMessage(Client client, String DeathId, String playerUUID, Cause cause);
+    public abstract void sendDeathMessage(Client client, String DeathId, UUID playerUUID, Cause cause);
 
-    public void sendDeathMessage(Client client, String DeathId, String playerUUID) {
+    public void sendDeathMessage(Client client, String DeathId, UUID playerUUID) {
         sendDeathMessage(client, DeathId, playerUUID, null);
     }
 }

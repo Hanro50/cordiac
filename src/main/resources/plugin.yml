@@ -1,4 +1,4 @@
-main: za.net.hanro50.cordiac.bridge.SpigotPlugin
+main: za.net.hanro50.cordiac.bridge.spigot.SpigotPlugin
 name: Cordiac
 version: 1.0-SNAPSHOT
 description: This plugin does so much stuff it can't be contained!
@@ -8,3 +8,4 @@ author: Hanro50
 prefix: Cordiac
 libraries:
    - net.dv8tion:JDA:5.0.0-beta.5
+   - club.minnced:discord-webhooks:0.8.2

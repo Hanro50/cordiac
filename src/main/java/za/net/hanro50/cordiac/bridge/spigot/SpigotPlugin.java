@@ -1,12 +1,18 @@
-package za.net.hanro50.cordiac.bridge;
+package za.net.hanro50.cordiac.bridge.spigot;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
@@ -15,16 +21,23 @@ import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import za.net.hanro50.cordiac.server.Discord;
 import za.net.hanro50.interfaces.Handler;
 import za.net.hanro50.interfaces.Server;
+import za.net.hanro50.interfaces.Data.Channel;
+import za.net.hanro50.interfaces.Data.ChannelLinker;
 import za.net.hanro50.utils.Util;
 
 public class SpigotPlugin extends JavaPlugin implements Handler {
     YamlConfiguration configYaml;
     String token;
-    File config;
+    File config, data;
     Server server;
+    ChannelLinker linker = new ChannelLinker();
+    Gson gson = new GsonBuilder().create();
 
     @Override
     public String getDiscordToken() {
@@ -34,16 +47,16 @@ public class SpigotPlugin extends JavaPlugin implements Handler {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<String> getTrusted() {
-        return (List<String>) configYaml.get("TrustedUsers");
+    public List<Long> getTrusted() {
+        return (List<Long>) configYaml.get("TrustedUsers");
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void addTrusted(String id) {
-        List<String> lst = (List<String>) configYaml.get("TrustedUsers");
+    public void addTrusted(Long id) {
+        Set<Long> lst = new HashSet<Long>((ArrayList<Long>) configYaml.get("TrustedUsers"));
         lst.add(id);
-        configYaml.set(id, lst);
+        configYaml.set("TrustedUsers", new ArrayList<>(lst));
         try {
             configYaml.save(config);
         } catch (IOException e) {
@@ -52,7 +65,7 @@ public class SpigotPlugin extends JavaPlugin implements Handler {
     }
 
     @Override
-    public String getMCUsername(String UUID) {
+    public String getMCUsername(UUID UUID) {
         return Bukkit.getPlayer(UUID).getDisplayName();
     }
 
@@ -62,7 +75,9 @@ public class SpigotPlugin extends JavaPlugin implements Handler {
     }
 
     public void onEnable() {
+
         config = new File(this.getDataFolder(), "Discord.yaml");
+        data = new File(this.getDataFolder(), "Channels.json");
         getLogger().info("Checking config file! [" + config.getAbsolutePath() + "]");
         if (!config.exists()) {
             try {
@@ -81,21 +96,27 @@ public class SpigotPlugin extends JavaPlugin implements Handler {
         configYaml = new YamlConfiguration();
         try {
             configYaml.load(config);
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
 
-        if (configYaml.get("Mode").toString().equals("Server")) {
-            token = configYaml.get("DiscordToken").toString();
-            getLogger().info(Settings().size()+"");
-            if (token.equals("Token Here")) {
-                getLogger().info("Please add a discord bot token and reload the plugin!");
-                return;
+            if (configYaml.get("Mode").toString().equals("Server")) {
+                token = configYaml.get("DiscordToken").toString();
+                getLogger().info(Settings().size() + "");
+                if (token.equals("Token Here")) {
+                    getLogger().info("Please add a discord bot token and reload the plugin!");
+                    return;
+                }
+
+                server = new Discord(this, getLogger());
+                this.getServer().getPluginManager().registerEvents(new GlobalClient(server, this), this);
+                if (data.exists()) {
+
+                    linker = gson.fromJson(Util.readFile(data), ChannelLinker.class);
+                }
+                linkServer(new Channel("Test", "test"), "Link");
+            } else {
+                getLogger().info("This mode is not supported atm.");
             }
-
-            server = new Discord(this);
-        } else {
-            getLogger().info("This mode is not supported atm.");
+        } catch (IOException | InvalidConfigurationException |InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -116,4 +137,27 @@ public class SpigotPlugin extends JavaPlugin implements Handler {
 
         return res;
     }
+
+    @Override
+    public void linkServer(Channel channel, String ChannelName) {
+        try {
+            FileWriter fs = new FileWriter(data);
+            linker.linkServer(channel, ChannelName);
+            fs.write(gson.toJson(linker));
+            fs.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String getChannelName(Channel channel) {
+        return linker.getChannelName(channel);
+    }
+
+    @Override
+    public Channel getChannel(String ChannelName) {
+        return linker.getChannel(ChannelName);
+    }
+
 }
