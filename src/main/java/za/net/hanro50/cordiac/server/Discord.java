@@ -1,6 +1,6 @@
 package za.net.hanro50.cordiac.server;
 
-import java.util.Date;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -76,10 +77,8 @@ public class Discord extends Server {
     }
 
     @Override
-    public void sendMessage(Client client, UUID UUID, String message) {
-        String name = handler.getMCUsername(UUID);
-        String pfp = "https://mc-heads.net/avatar/" + UUID;
-        Channel channel = handler.getChannel(client.getName());
+    public void sendMessage(Client client, UUID UUID, final String message) {
+        Channel channel = handler.getChannelLinker().getChannel(client.getName());
         log.info(client.getName());
         if (channel == null)
             return;
@@ -91,10 +90,39 @@ public class Discord extends Server {
         Member me = guild.getSelfMember();
         if (me == null)
             return;
-
         TextChannel txt = guild.getTextChannelById(channel.channelID);
         if (txt == null)
             return;
+
+        String name = null;
+        String pfp = null;
+        String discordID = handler.getPlayerLinker().getDiscordID(UUID);
+        if (discordID != null)
+            try {
+                Member mem = guild.retrieveMemberById(discordID).complete();
+                if (mem != null) {
+                    log.info("FOUND PFP");
+                    name = mem.getEffectiveName();
+                    pfp = mem.getEffectiveAvatarUrl();
+                } else {
+                    log.info("FALLBACK");
+                    User user = jda.retrieveUserById(discordID).complete();
+                    if (user != null) {
+                        name = user.getName();
+                        pfp = user.getEffectiveAvatarUrl();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        if (name == null)
+            name = handler.getMCUsername(UUID);
+        if (pfp == null)
+            pfp = "https://mc-heads.net/avatar/" + UUID;
+
+        final String finalName = name;
+        final String finalProfilePic = pfp;
         if (me.hasPermission(txt, Permission.MANAGE_WEBHOOKS)) {
             Webhook wb = cachedWebHooks.get(channel.getID());
             if (wb == null) {
@@ -105,19 +133,19 @@ public class Discord extends Server {
                             log.info("OLD STUFF");
                             wba = webhook;
                             cachedWebHooks.put(channel.getID(), webhook);
-                            sendMsg(wba, name, pfp, message);
+                            sendMsg(wba, finalName, finalProfilePic, message);
                             return;
                         }
                     }
                     txt.createWebhook("MC_CHAT_LINK").onSuccess(ff -> {
                         cachedWebHooks.put(channel.getID(), ff);
-                        sendMsg(ff, name, pfp, message);
+                        sendMsg(ff, finalName, finalProfilePic, message);
                     }).submit();
                 }).submit();
             } else
-                sendMsg(wb, name, pfp, message);
+                sendMsg(wb, finalName, finalProfilePic, message);
         } else {
-            txt.sendMessage(name + ": " + message).submit();
+            txt.sendMessage(finalName + ": " + message).submit();
         }
     }
 
@@ -142,22 +170,22 @@ public class Discord extends Server {
     }
 
     @Override
-    public void getPlayerInformation(Client client, UUID[] UUIDs) {
-    }
-
-    @Override
     public void stop() {
         jda.shutdown();
     }
 
     @Override
     public void requestData(Client client) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'requestData'");
     }
 
     @Override
     public void sendUnLinkRequest(UUID UUID) {
+        try {
+            handler.getPlayerLinker().removeType(UUID);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

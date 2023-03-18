@@ -15,6 +15,8 @@ Rules:
   # Force people into linking their discord and MC accounts to join 
   ForceLink:      false
 
+
+
 # People The bot trusts (The author of the bot is always trusted!)
 TrustedUsers:
   - 147677951683461120

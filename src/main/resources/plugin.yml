@@ -1,4 +1,4 @@
-main: za.net.hanro50.cordiac.bridge.spigot.SpigotPlugin
+main: za.net.hanro50.cordiac.bridge.SpigotPlugin
 name: Cordiac
 version: 1.0-SNAPSHOT
 description: This plugin does so much stuff it can't be contained!

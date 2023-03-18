@@ -1,6 +1,9 @@
 package za.net.hanro50.interfaces;
 
-import za.net.hanro50.interfaces.Data.Channel;
+import za.net.hanro50.interfaces.Data.ChannelLinker;
+import za.net.hanro50.interfaces.Data.PlayerLinker;
+
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -19,15 +22,10 @@ public interface Handler {
     String translate(String id);
 
     // PlayerLinker
-    void linkServer(Channel channel, String ChannelName);
+    PlayerLinker getPlayerLinker();
 
-    String getChannelName(Channel channel);
+    ChannelLinker getChannelLinker();
 
-    Channel getChannel(String ChannelName);
+    File getCache();
 
-    void linkPlayer(long discordID, UUID uuid);
-
-    UUID getUUID(long discordID);
-
-    Long getDiscordID(UUID uuid);
 }

@@ -1,20 +1,22 @@
 package za.net.hanro50.cordiac.server;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
 
 import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import za.net.hanro50.interfaces.Client;
 import za.net.hanro50.interfaces.Data.Channel;
+import za.net.hanro50.interfaces.Data.PlayerData;
 
 public class DiscordListener extends ListenerAdapter {
     final Discord discord;
@@ -32,8 +34,15 @@ public class DiscordListener extends ListenerAdapter {
                 event.getGuildChannel().sendMessage(res).submit();
                 return;
             } else if (discord.getClients().get(split[1]) != null) {
-                discord.handler.linkServer(chan, split[1]);
-                event.getGuildChannel().sendMessage("Channel has been linked to " + split[1]).submit();
+                try {
+                    discord.handler.getChannelLinker().link(chan, split[1]);
+
+                    event.getGuildChannel().sendMessage("Channel has been linked to " + split[1]).submit();
+                } catch (IOException e) {
+                    event.getGuildChannel().sendMessage("Failed to link " + split[1] + "\n" + e.getLocalizedMessage())
+                            .submit();
+                    e.printStackTrace();
+                }
                 return;
             } else {
                 event.getGuildChannel().sendMessage("Invalid room ID provided").submit();
@@ -52,34 +61,20 @@ public class DiscordListener extends ListenerAdapter {
         });
     }
 
-    Number getColor(MessageReceivedEvent event) {
-        Member mem = event.getMember();
-        if (mem != null) {
-            return mem.getColor().getRGB();
-        } else {
-            return 16777214;
-        }
-    }
-
-    String getName(MessageReceivedEvent event) {
-        Member mem = event.getMember();
-        if (mem != null) {
-            return mem.getEffectiveName();
-        } else {
-            return event.getAuthor().getName();
-        }
-    }
-
     public boolean isTrusted(MessageReceivedEvent event) {
-        discord.log.info(discord.handler.getTrusted()+"_"+event.getAuthor().getIdLong());
+        discord.log.info(discord.handler.getTrusted() + "_" + event.getAuthor().getIdLong());
         return (discord.handler.getTrusted().contains(event.getAuthor().getIdLong())
                 || discord.adminID == event.getAuthor().getIdLong());
     }
 
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         String message = event.getMessage().getContentStripped();
-        if (event.isFromGuild() && !event.isWebhookMessage()
-                && !event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
+        discord.log.info(message);
+        String[] com = message.split(" ");
+        if (event.isWebhookMessage()
+                || event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId()))
+            return;
+        if (event.isFromGuild()) {
             IMentionable mem = event.getMember();
             Color color = null;
             if (mem == null)
@@ -89,7 +84,7 @@ public class DiscordListener extends ListenerAdapter {
             if (color == null)
                 color = Color.white;
             Channel chan = new Channel(event.getGuild().getId(), event.getGuildChannel().getId());
-            String[] com = message.split(" ");
+
             if (eventHandler.containsKey(com[0])) {
                 if (!isTrusted(event))
                     event.getGuildChannel().sendMessage("Insufficient permissions, the bot does not trust you")
@@ -99,13 +94,40 @@ public class DiscordListener extends ListenerAdapter {
                 return;
 
             }
-            Client client = discord.getClients().get(discord.handler.getChannelName(chan));
+            Client client = discord.getClients().get(discord.handler.getChannelLinker().getChannelName(chan));
 
             if (client != null) {
-                client.sendServerMessage(color, getName(event), message);
+                if (event.getMember() != null)
+                    client.sendMessage(new PlayerData(discord.handler, event.getMember()), message);
+                else if (event.getMember() != null)
+                    client.sendMessage(new PlayerData(discord.handler, event.getAuthor()), message);
             }
-
+            return;
         }
+
+        if (message.startsWith("!link")) {
+            if (com.length != 2) {
+                event.getChannel().sendMessage("Usage !trust <code>\nRun the /link command in MC to get a code.")
+                        .submit();
+            } else {
+                UUID uuid = discord.pendingLink.getIfPresent(com[1]);
+                if (uuid != null)
+                    try {
+                        discord.handler.getPlayerLinker().link(event.getAuthor().getId(), uuid);
+                        //Simple test
+                        discord.log.info("[LINKED] " + discord.handler.getPlayerLinker().getDiscordID(uuid)
+                                + " <=======> " + discord.handler.getPlayerLinker().getUUID(event.getAuthor().getId()));
+                        event.getChannel().sendMessage("Linked accounts!").submit();
+                        discord.pendingLink.invalidate(com[1]);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        event.getChannel().sendMessage("Error, failed to link\n" + e.getMessage()).submit();
+                    }
+                else
+                    event.getChannel().sendMessage("Error, failed to link\nCould not find provided code!").submit();
+            }
+        }
+
     }
 
 }
