@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -116,7 +115,7 @@ public class SpigotClient extends Client implements Listener, CommandExecutor {
             Player player = (Player) sender;
             switch (command.getName()) {
                 case ("link"):
-                    String code = String.format("%03.3d-%03d-%03d", Math.floor(new Date().getTime() / 100.0),
+                    String code = String.format("%03d-%03d-%03d", ThreadLocalRandom.current().nextInt(0, 1000),
                             ThreadLocalRandom.current().nextInt(0, 1000), ThreadLocalRandom.current().nextInt(0, 1000));
                     player.sendMessage("DM the bot the following message [" + ChatColor.RED + "!link " + code
                             + ChatColor.RESET + "] to link your account");
