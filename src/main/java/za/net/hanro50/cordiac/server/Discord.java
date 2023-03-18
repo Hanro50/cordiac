@@ -1,5 +1,6 @@
 package za.net.hanro50.cordiac.server;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ import com.google.common.cache.CacheBuilder;
 
 import club.minnced.discord.webhook.external.JDAWebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
@@ -76,86 +78,138 @@ public class Discord extends Server {
         }
     }
 
+    public class messExp extends RuntimeException {
+    }
+
+    public class messageObj {
+        final String finalName;
+        final String finalProfilePic;
+        final String finalLink;
+        Channel channel;
+        Guild guild;
+        Member me;
+        TextChannel txt;
+
+        public messageObj(Client client, UUID UUID) {
+            channel = handler.getChannelLinker().getChannel(client.getName());
+            log.info(client.getName());
+            if (channel == null)
+                throw new messExp();
+            log.info(channel.getID());
+            guild = jda.getGuildById(channel.guildID);
+            if (guild == null)
+                throw new messExp();
+            log.info(guild.getName());
+            me = guild.getSelfMember();
+            if (me == null)
+                throw new messExp();
+            txt = guild.getTextChannelById(channel.channelID);
+            if (txt == null)
+                throw new messExp();
+
+            String name = null;
+            String pfp = null;
+            String link = null;
+            String discordID = handler.getPlayerLinker().getDiscordID(UUID);
+            if (discordID != null)
+                try {
+                    Member mem = guild.retrieveMemberById(discordID).complete();
+                    if (mem != null) {
+                        log.info("FOUND PFP");
+                        name = mem.getEffectiveName();
+                        pfp = mem.getEffectiveAvatarUrl();
+                        link = "https://discord.com/users/" + mem.getId();
+                    } else {
+                        log.info("FALLBACK");
+                        User user = jda.retrieveUserById(discordID).complete();
+                        if (user != null) {
+                            name = user.getName();
+                            pfp = user.getEffectiveAvatarUrl();
+                            link = "https://discord.com/users/" + user.getId();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            if (name == null)
+                name = handler.getMCUsername(UUID);
+            if (pfp == null)
+                pfp = "https://mc-heads.net/avatar/" + UUID;
+
+            finalName = name;
+            finalProfilePic = pfp;
+            finalLink = link;
+        }
+    }
+
     @Override
     public void sendMessage(Client client, UUID UUID, final String message) {
-        Channel channel = handler.getChannelLinker().getChannel(client.getName());
-        log.info(client.getName());
-        if (channel == null)
+        messageObj mess;
+        try {
+            mess = new messageObj(client, UUID);
+        } catch (messExp e) {
             return;
-        log.info(channel.getID());
-        Guild guild = jda.getGuildById(channel.guildID);
-        if (guild == null)
-            return;
-        log.info(guild.getName());
-        Member me = guild.getSelfMember();
-        if (me == null)
-            return;
-        TextChannel txt = guild.getTextChannelById(channel.channelID);
-        if (txt == null)
-            return;
-
-        String name = null;
-        String pfp = null;
-        String discordID = handler.getPlayerLinker().getDiscordID(UUID);
-        if (discordID != null)
-            try {
-                Member mem = guild.retrieveMemberById(discordID).complete();
-                if (mem != null) {
-                    log.info("FOUND PFP");
-                    name = mem.getEffectiveName();
-                    pfp = mem.getEffectiveAvatarUrl();
-                } else {
-                    log.info("FALLBACK");
-                    User user = jda.retrieveUserById(discordID).complete();
-                    if (user != null) {
-                        name = user.getName();
-                        pfp = user.getEffectiveAvatarUrl();
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        if (name == null)
-            name = handler.getMCUsername(UUID);
-        if (pfp == null)
-            pfp = "https://mc-heads.net/avatar/" + UUID;
-
-        final String finalName = name;
-        final String finalProfilePic = pfp;
-        if (me.hasPermission(txt, Permission.MANAGE_WEBHOOKS)) {
-            Webhook wb = cachedWebHooks.get(channel.getID());
+        }
+        if (mess.me.hasPermission(mess.txt, Permission.MANAGE_WEBHOOKS)
+                && (handler.Settings().get("UseWebHooks") == true)) {
+            Webhook wb = cachedWebHooks.get(mess.channel.getID());
             if (wb == null) {
-                txt.retrieveWebhooks().onSuccess(wbs -> {
+                mess.txt.retrieveWebhooks().onSuccess(wbs -> {
                     Webhook wba;
                     for (Webhook webhook : wbs) {
-                        if (webhook.getOwner() != null && webhook.getOwner().getId().equals(me.getId())) {
+                        if (webhook.getOwner() != null && webhook.getOwner().getId().equals(mess.me.getId())) {
                             log.info("OLD STUFF");
                             wba = webhook;
-                            cachedWebHooks.put(channel.getID(), webhook);
-                            sendMsg(wba, finalName, finalProfilePic, message);
+                            cachedWebHooks.put(mess.channel.getID(), webhook);
+                            sendMsg(wba, mess.finalName, mess.finalProfilePic, message);
                             return;
                         }
                     }
-                    txt.createWebhook("MC_CHAT_LINK").onSuccess(ff -> {
-                        cachedWebHooks.put(channel.getID(), ff);
-                        sendMsg(ff, finalName, finalProfilePic, message);
+                    mess.txt.createWebhook("MC_CHAT_LINK").onSuccess(ff -> {
+                        cachedWebHooks.put(mess.channel.getID(), ff);
+                        sendMsg(ff, mess.finalName, mess.finalProfilePic, message);
                     }).submit();
                 }).submit();
             } else
-                sendMsg(wb, finalName, finalProfilePic, message);
+                sendMsg(wb, mess.finalName, mess.finalProfilePic, message);
         } else {
-            txt.sendMessage(finalName + ": " + message).submit();
+            mess.txt.sendMessage(mess.finalName + ": " + message).submit();
         }
     }
 
     @Override
     public void playerJoin(Client client, UUID UUID) {
+        if (handler.Settings().get("JoinMessages") == false)
+            return;
+        messageObj mess;
+        try {
+            mess = new messageObj(client, UUID);
+        } catch (messExp e) {
+            return;
+        }
+        EmbedBuilder emb = new EmbedBuilder();
+        emb.setAuthor(handler.getLangParser().parse("multiplayer.player.joined", mess.finalName), mess.finalLink,
+                mess.finalProfilePic);
+        emb.setColor(Color.green);
+        mess.txt.sendMessageEmbeds(emb.build()).submit();
 
     }
 
     @Override
     public void playerLeave(Client client, UUID UUID) {
+        if (handler.Settings().get("LeaveMessages") == false)
+            return;
+        messageObj mess;
+        try {
+            mess = new messageObj(client, UUID);
+        } catch (messExp e) {
+            return;
+        }
+        EmbedBuilder emb = new EmbedBuilder();
+        emb.setAuthor(handler.getLangParser().parse("multiplayer.player.left", mess.finalName), mess.finalLink, mess.finalProfilePic);
+        emb.setColor(Color.red);
+        mess.txt.sendMessageEmbeds(emb.build()).submit();
 
     }
 

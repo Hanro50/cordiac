@@ -3,6 +3,8 @@ Mode: Server
 # Discord token
 DiscordToken: Token Here
 
+language: en_us
+
 Rules:
   # Uses webhooks to post server messages
   UseWebHooks:    true
@@ -14,8 +16,14 @@ Rules:
   ServerMessages: true
   # Force people into linking their discord and MC accounts to join 
   ForceLink:      false
-
-
+  
+# Language packs to install (Leave empty to download all)
+languages:
+  - af_za
+  - en_gb
+  - en_pr
+  - enws
+  - fr_fr
 
 # People The bot trusts (The author of the bot is always trusted!)
 TrustedUsers:

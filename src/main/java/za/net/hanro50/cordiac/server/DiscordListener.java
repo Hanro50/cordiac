@@ -2,8 +2,11 @@ package za.net.hanro50.cordiac.server;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
@@ -14,6 +17,7 @@ import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import za.net.hanro50.cordiac.lang.LangInfo;
 import za.net.hanro50.interfaces.Client;
 import za.net.hanro50.interfaces.Data.Channel;
 import za.net.hanro50.interfaces.Data.PlayerData;
@@ -29,7 +33,7 @@ public class DiscordListener extends ListenerAdapter {
             if (split.length < 2) {
                 String res = "Usage !set <room ID>\nAvailable room IDs\n";
                 for (Entry<String, Client> client : this.discord.getClients().entrySet()) {
-                    res += client.getKey();
+                    res += client.getKey() + "\n";
                 }
                 event.getGuildChannel().sendMessage(res).submit();
                 return;
@@ -59,6 +63,51 @@ public class DiscordListener extends ListenerAdapter {
             event.getGuildChannel().sendMessage("Usage: !trust @User").submit();
             return;
         });
+        eventHandler.put("!language", (split, event) -> {
+            LangInfo info = this.discord.handler.getLangParser().getInfo();
+            if (split.length < 2) {
+                String res = "Usage !language <language ID>\nAvailable language IDs\n\nID : Name\n";
+                List<Entry<String, String>> z = new ArrayList<>(info.info.entrySet());
+                z.sort((a, b) -> {
+                    return a.getKey().compareTo(b.getKey());
+                });
+                for (Entry<String, String> client : z) {
+                    String t = "";
+                    if (client.getKey().equals(info.current))
+                        t += ">>";
+
+                    t += client.getKey() + " : " + client.getValue() + "\n";
+                    if (res.length() + t.length() > 1950) {
+                        event.getGuildChannel().sendMessage(res).submit();
+                        res = t;
+                    } else {
+                        res += t;
+                    }
+
+                }
+                event.getGuildChannel().sendMessage(res).submit();
+                return;
+            } else if (info.info.keySet().contains(split[1])) {
+                try {
+                    discord.handler.getLangParser().setLang(split[1], true);
+                    event.getGuildChannel()
+                            .sendMessage("Language has been set to " + info.info.getOrDefault(split[1], split[1]))
+                            .submit();
+                } catch (IOException e) {
+                    event.getGuildChannel()
+                            .sendMessage("Failed to link " + split[1] + "\n" + e.getLocalizedMessage())
+                            .submit();
+                    e.printStackTrace();
+                }
+            } else {
+                event.getGuildChannel().sendMessage(
+                        "Failed to find language code provided. Perhaps it has not been set to download the particular language pack you wanted?")
+                        .submit();
+            }
+            return;
+
+        });
+
     }
 
     public boolean isTrusted(MessageReceivedEvent event) {
@@ -114,7 +163,7 @@ public class DiscordListener extends ListenerAdapter {
                 if (uuid != null)
                     try {
                         discord.handler.getPlayerLinker().link(event.getAuthor().getId(), uuid);
-                        //Simple test
+                        // Simple test
                         discord.log.info("[LINKED] " + discord.handler.getPlayerLinker().getDiscordID(uuid)
                                 + " <=======> " + discord.handler.getPlayerLinker().getUUID(event.getAuthor().getId()));
                         event.getChannel().sendMessage("Linked accounts!").submit();

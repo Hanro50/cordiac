@@ -20,6 +20,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import za.net.hanro50.cordiac.client.SpigotClient;
+import za.net.hanro50.cordiac.lang.Parser;
 import za.net.hanro50.cordiac.server.Discord;
 import za.net.hanro50.interfaces.Handler;
 import za.net.hanro50.interfaces.Server;
@@ -34,6 +35,7 @@ public class SpigotPlugin extends JavaPlugin implements Handler {
     Server server;
     ChannelLinker channelLinker;
     PlayerLinker playerLinker;
+    Parser parser;
 
     @Override
     public String getDiscordToken() {
@@ -160,6 +162,25 @@ public class SpigotPlugin extends JavaPlugin implements Handler {
         File res = new File(getDataFolder(), "cache");
         res.mkdir();
         return res;
+    }
+
+    @Override
+    public Parser getLangParser() {
+        if (parser == null)
+            try {
+                File langDir = new File(this.getDataFolder(), "lang");
+                langDir.mkdir();
+                String version = getServer().getVersion();
+                version = version.substring(version.lastIndexOf("1."));
+                version = version.substring(0, version.lastIndexOf("."));
+                configYaml.addDefault("languages", new ArrayList<>());
+                List<String> ltr = configYaml.getStringList("languages");
+                parser = new Parser(getLogger(), version, langDir, ltr);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        return parser;
     }
 
 }

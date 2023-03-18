@@ -1,6 +1,7 @@
 package za.net.hanro50.utils;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,5 +38,13 @@ public class Util {
             throws IOException {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, encoding);
+    }
+
+    public static void write(File file, String content) throws IOException {
+        if (!file.exists())
+            file.createNewFile();
+        FileWriter fs = new FileWriter(file);
+        fs.write(content);
+        fs.close();
     }
 }

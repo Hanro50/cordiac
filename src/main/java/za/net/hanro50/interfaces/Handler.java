@@ -1,5 +1,6 @@
 package za.net.hanro50.interfaces;
 
+import za.net.hanro50.cordiac.lang.Parser;
 import za.net.hanro50.interfaces.Data.ChannelLinker;
 import za.net.hanro50.interfaces.Data.PlayerLinker;
 
@@ -27,5 +28,7 @@ public interface Handler {
     ChannelLinker getChannelLinker();
 
     File getCache();
+
+    Parser getLangParser();
 
 }
