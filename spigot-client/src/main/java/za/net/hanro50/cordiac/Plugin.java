@@ -78,6 +78,7 @@ public class Plugin implements Listener, Client {
     void onPlayerDeath(PlayerDeathEvent death) {
         Death A = null;
         UUID player = null;
+        boolean isCustomized = false;
         if (death.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent LastD = (EntityDamageByEntityEvent) death.getEntity().getLastDamageCause();
             String Weapon = null;
@@ -135,14 +136,15 @@ public class Plugin implements Listener, Client {
                 }
             }
 
-            A = new Death(DeathMessage, Mob, death.getEntity().getUniqueId(), player, Weapon);
+            A = new Death(DeathMessage, Mob, death.getEntity().getUniqueId(), player, Weapon, isCustomized);
 
         } else {
             if (death.getEntity().getKiller() != null) {
                 player = death.getEntity().getKiller().getUniqueId();
             }
+
             A = new Death(Remappings2.DMTranslate(death.getEntity().getLastDamageCause().getCause()), null,
-                    death.getEntity().getUniqueId(), player, null);
+                    death.getEntity().getUniqueId(), player, null, isCustomized);
         }
 
         if (A != null) {
@@ -204,16 +206,16 @@ public class Plugin implements Listener, Client {
     }
 
     @EventHandler
-	void PlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent e) {
-		if (e.getAdvancement().getKey().getKey().split("/").length < 1
-				|| e.getAdvancement().getKey().getKey().split("/")[0].equalsIgnoreCase("recipes")) {
-			return;
-		}
-		Advancement A = new Advancement(e.getPlayer().getUniqueId(),
-        "advancements." + e.getAdvancement().getKey().getKey().replace("/", "."));
+    void PlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent e) {
+        if (e.getAdvancement().getKey().getKey().split("/").length < 1
+                || e.getAdvancement().getKey().getKey().split("/")[0].equalsIgnoreCase("recipes")) {
+            return;
+        }
+        Advancement A = new Advancement(e.getPlayer().getUniqueId(),
+                "advancements." + e.getAdvancement().getKey().getKey().replace("/", "."));
 
-		server.sendAdvancement(this, A);
+        server.sendAdvancement(this, A);
 
-	}
+    }
 
 }

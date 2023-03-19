@@ -23,5 +23,6 @@ packs:
 - en_pr
 - enws
 - fr_fr
+- fr_ca 
 format: <%username%> %message%
 versionOverride: "default"

@@ -215,7 +215,7 @@ public class DiscordServer extends Server {
 
     @Override
     public void sendAdvancement(Client client, Advancement advancement) {
-        if (!bridge.getSettings().showJoinMessages())
+        if (!bridge.getSettings().showAdvancementMessages())
             return;
         MessageObj mess;
         try {
@@ -234,7 +234,7 @@ public class DiscordServer extends Server {
 
     @Override
     public void sendAchievement(Client client, Achievement achievement) {
-        if (!bridge.getSettings().showJoinMessages())
+        if (!bridge.getSettings().showAchievementMessages())
             return;
         MessageObj mess;
         try {
@@ -253,7 +253,7 @@ public class DiscordServer extends Server {
 
     @Override
     public void sendChat(Client client, Chat chat) {
-        
+
         MessageObj mess;
         try {
             mess = new MessageObj(client, chat);
@@ -289,7 +289,7 @@ public class DiscordServer extends Server {
 
     @Override
     public void sendDeath(Client client, Death death) {
-        if (!bridge.getSettings().showJoinMessages())
+        if (!bridge.getSettings().showDeathMessages())
             return;
         MessageObj mess;
         try {
@@ -299,14 +299,29 @@ public class DiscordServer extends Server {
         }
         String deathMess = death.getNameSpace();
         String cause = death.getMobName(), item = death.getWeapon();
-        EmbedBuilder emb = new EmbedBuilder();
-        if (cause != null) {
-            if (item != null && langParser.has(deathMess + ".item"))
-                deathMess += ".item";
-            else if (langParser.has(deathMess + ".player"))
-                deathMess += ".player";
-        }
+        boolean isPlayer = death.getAttacker() != null;
 
+        EmbedBuilder emb = new EmbedBuilder();
+
+        if (isPlayer) {
+            cause = bridge.getUserName(death.getAttacker());
+
+        }
+        if (cause != null) {
+            if (!isPlayer && !death.isCustomized()) {
+                if (langParser.has(cause) && langParser.has(deathMess + ".player")) {
+                    cause = langParser.parse(cause.toLowerCase());
+                    deathMess += ".player";
+                } else {
+                    cause = null;
+                }
+            } else if (langParser.has(deathMess + ".player")) {
+                deathMess += ".player";
+            }
+        }
+        if (item != null && cause != null && langParser.has(deathMess + ".item")) {
+            deathMess = death.getNameSpace() + ".item";
+        }
         emb.setAuthor(langParser.parse(deathMess, mess.finalName, cause, item), mess.finalLink,
                 mess.finalProfilePic);
 
@@ -333,7 +348,7 @@ public class DiscordServer extends Server {
 
     @Override
     public void sendLeave(Client client, Leave leave) {
-        if (!bridge.getSettings().showJoinMessages())
+        if (!bridge.getSettings().showLeaveMessages())
             return;
         MessageObj mess;
         try {

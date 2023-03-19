@@ -86,12 +86,14 @@ public class OldPlugin implements Listener, Client {
     public void onDeath(PlayerDeathEvent death) {
         Death A = null;
         UUID player = null;
+        boolean isCustomized = false;
         if (death.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent LastD = (EntityDamageByEntityEvent) death.getEntity().getLastDamageCause();
             String Weapon = null;
             Entity Damager = LastD.getDamager();
             String DeathMessage = ReMappings.DMTranslate(LastD.getCause());
             String Mob = null;
+
             // TNT is annoying
             if (Damager instanceof TNTPrimed) {
                 Damager = ((TNTPrimed) Damager).getSource();
@@ -120,6 +122,7 @@ public class OldPlugin implements Listener, Client {
                 Mob = mobT;
                 if (Damager.getCustomName() != null) {
                     Mob = Damager.getCustomName();
+                    isCustomized = true;
                 }
                 if (Damager instanceof LivingEntity) {
                     ItemMeta Meta = null;
@@ -143,14 +146,14 @@ public class OldPlugin implements Listener, Client {
                 }
             }
 
-            A = new Death(DeathMessage, Mob, death.getEntity().getUniqueId(), player, Weapon);
+            A = new Death(DeathMessage, Mob, death.getEntity().getUniqueId(), player, Weapon,isCustomized);
 
         } else {
             if (death.getEntity().getKiller() != null) {
                 player = death.getEntity().getKiller().getUniqueId();
             }
             A = new Death(ReMappings.DMTranslate(death.getEntity().getLastDamageCause().getCause()), null,
-                    death.getEntity().getUniqueId(), player, null);
+                    death.getEntity().getUniqueId(), player, null,isCustomized);
         }
 
         if (A != null) {
