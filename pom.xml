@@ -1,49 +1,63 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
   <modelVersion>4.0.0</modelVersion>
+    
+  <packaging>pom</packaging>
+    
   <groupId>za.net.hanro50</groupId>
+    
   <artifactId>cordiac</artifactId>
+    
   <version>1.0-SNAPSHOT</version>
+    
   <properties>
+        
     <maven.compiler.source>1.8</maven.compiler.source>
+        
     <maven.compiler.target>1.8</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      
   </properties>
+    
+  <modules>
+        
+    <module>api</module>
+        
+    <module>server</module>
+        
+    <module>spigot-client</module>
+        
+    <module>spigot-server</module>
+        
+    <module>spigot-client-old</module>
+      
+  </modules>
+    
   <dependencies>
+        
+    <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+        
     <dependency>
-      <groupId>net.dv8tion</groupId>
-      <artifactId>JDA</artifactId>
-      <version>5.0.0-beta.5</version>
-      <exclusions>
-        <exclusion>
-          <groupId>club.minnced</groupId>
-          <artifactId>opus-java</artifactId>
-        </exclusion>
-      </exclusions>
+            
+      <groupId>com.google.code.gson</groupId>
+            
+      <artifactId>gson</artifactId>
+            
+      <version>2.10.1</version>
+          
     </dependency>
+        
     <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot-api</artifactId>
-      <version>1.19.3-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
+            
+      <groupId>com.google.guava</groupId>
+            
+      <artifactId>guava</artifactId>
+            
+      <version>31.1-jre</version>
+          
     </dependency>
-
-    <dependency>
-      <groupId>club.minnced</groupId>
-      <artifactId>discord-webhooks</artifactId>
-      <version>0.8.2</version>
-    </dependency>
+        
   
-
   </dependencies>
-
-  <repositories>
-    <!-- This adds the Spigot Maven repository to the build -->
-    <repository>
-      <id>spigot-repo</id>
-      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-    </repository>
-  </repositories>
-
+  
 </project>
