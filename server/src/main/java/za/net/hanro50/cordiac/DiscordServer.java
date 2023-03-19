@@ -57,14 +57,16 @@ public class DiscordServer extends Server {
     PlayerLNK playerLNK;
     final Boolean active;
     Map<String, Webhook> cachedWebHooks = new HashMap<>();
+    private TrustedList trustedList;
 
     public DiscordServer(Bridge handler, String token) throws InterruptedException, IOException {
         if (token.equals("Token here")) {
             adminID = null;
-            active =false;
+            active = false;
             handler.getLogger().info("Please add a discord bot token and reload the plugin");
             return;
         }
+        this.trustedList = new TrustedList(handler.getRoot());
         this.active = true;
         this.playerLNK = new PlayerLNK(new File(handler.getRoot(), "Players.json"));
         this.channelLinker = new ChannelLNK(new File(handler.getRoot(), "Channels.json"));
@@ -251,6 +253,7 @@ public class DiscordServer extends Server {
 
     @Override
     public void sendChat(Client client, Chat chat) {
+        
         MessageObj mess;
         try {
             mess = new MessageObj(client, chat);
@@ -358,10 +361,15 @@ public class DiscordServer extends Server {
     }
 
     public void addTrusted(String id) {
+        try {
+            trustedList.addTrusted(id);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public List<String> getTrusted() {
-        return null;
+        return trustedList.getTrusted();
     }
 
     @Override

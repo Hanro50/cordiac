@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -29,6 +30,7 @@ import za.net.hanro50.cordiac.api.Bridge;
 import za.net.hanro50.cordiac.api.Client;
 import za.net.hanro50.cordiac.api.DPlayer;
 import za.net.hanro50.cordiac.api.Server;
+import za.net.hanro50.cordiac.api.messages.Advancement;
 import za.net.hanro50.cordiac.api.messages.Chat;
 import za.net.hanro50.cordiac.api.messages.Death;
 import za.net.hanro50.cordiac.api.messages.Join;
@@ -168,6 +170,10 @@ public class Plugin implements Listener, Client {
             env = env.replace("%role%", "");
         else
             env = env.replace("%role%", player.getRoles().get(0).name);
+        env = env.replace("%message%", message);
+
+        this.message(env);
+
     }
 
     @Override
@@ -180,7 +186,7 @@ public class Plugin implements Listener, Client {
 
     @Override
     public void ban(DPlayer player, String reason) {
-       
+
     }
 
     @Override
@@ -196,4 +202,18 @@ public class Plugin implements Listener, Client {
     public String getID() {
         return this.name;
     }
+
+    @EventHandler
+	void PlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent e) {
+		if (e.getAdvancement().getKey().getKey().split("/").length < 1
+				|| e.getAdvancement().getKey().getKey().split("/")[0].equalsIgnoreCase("recipes")) {
+			return;
+		}
+		Advancement A = new Advancement(e.getPlayer().getUniqueId(),
+        "advancements." + e.getAdvancement().getKey().getKey().replace("/", "."));
+
+		server.sendAdvancement(this, A);
+
+	}
+
 }

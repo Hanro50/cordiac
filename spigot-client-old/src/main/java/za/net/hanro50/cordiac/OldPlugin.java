@@ -76,7 +76,6 @@ public class OldPlugin implements Listener, Client {
         server.sendLeave(this, new Leave(e.getPlayer().getUniqueId(), LeaveType.KICK, e.getReason()));
     }
 
-
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onAchievement(PlayerAchievementAwardedEvent achievement) {
         server.sendAchievement(this, new Achievement(achievement.getPlayer().getUniqueId(),
@@ -106,7 +105,7 @@ public class OldPlugin implements Listener, Client {
             } else if (Damager instanceof FallingBlock) {
                 // death.attack.anvil
                 FallingBlock block = (FallingBlock) Damager;
-   
+
                 Material f = block.getMaterial();
                 if (f == Material.ANVIL) {
                     DeathMessage = "death.attack.anvil";
@@ -175,6 +174,10 @@ public class OldPlugin implements Listener, Client {
             env = env.replace("%role%", "");
         else
             env = env.replace("%role%", player.getRoles().get(0).name);
+        env = env.replace("%message%", message);
+
+        this.message(env);
+
     }
 
     @Override
@@ -187,7 +190,7 @@ public class OldPlugin implements Listener, Client {
 
     @Override
     public void ban(DPlayer player, String reason) {
-    
+
     }
 
     @Override

@@ -7,6 +7,8 @@ import java.util.List;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import za.net.hanro50.cordiac.api.Bridge;
@@ -17,14 +19,25 @@ public class Main extends JavaPlugin implements Settings, Bridge {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
         try {
-            server = new DiscordServer(this, getConfig().getString("format", "Token here"));
+            server = new DiscordServer(this, getConfig().getString("token", "Token here"));
             if (!server.active())
                 return;
 
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
+            return;
         }
+        try {
+            Plugin pl = new Plugin(this, this, server, "Global");
+            this.getServer().getPluginManager().registerEvents(pl, this);
+        } catch (Exception e) {
+            getLogger().info("Failed to load current implementation. Loading fallback!");
+            OldPlugin pl = new OldPlugin(this, this, server, "Global");
+            this.getServer().getPluginManager().registerEvents(pl, this);
+        }
+
     }
 
     @Override
@@ -95,11 +108,14 @@ public class Main extends JavaPlugin implements Settings, Bridge {
 
     @Override
     public String chatFormat() {
-        return getConfig().getString("format", "<%username%> ");
+        return getConfig().getString("format", "<%username%> %message%");
     }
 
     @Override
     public String getUserName(UUID uuid) {
-        return getUserName(uuid);
+        OfflinePlayer plr = Bukkit.getOfflinePlayer(uuid);
+        if (plr.isOnline())
+            return Bukkit.getPlayer(uuid).getDisplayName();
+        return plr.getName();
     }
 }

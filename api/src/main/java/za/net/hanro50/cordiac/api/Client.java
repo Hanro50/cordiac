@@ -2,7 +2,7 @@ package za.net.hanro50.cordiac.api;
 
 public interface Client {
     default void activate(Server server) {
-
+        server.addClient(this);
     }
 
     /** Sends a message to the broadcast channel */

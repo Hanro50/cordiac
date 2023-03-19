@@ -1,7 +1,6 @@
 package za.net.hanro50.cordiac.linkers;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import java.util.HashMap;
@@ -48,12 +47,7 @@ public class Linker<Key,Type> {
     }
 
     public void save() throws IOException {
-        if (!mainFile.exists()) {
-            mainFile.createNewFile();
-        }
-        FileWriter fs = new FileWriter(mainFile);
-        fs.write(gson.toJson(this));
-        fs.close();
+        Util.write(mainFile, gson.toJson(this));
     }
 
     protected Map<Type, Key> getInverse() {

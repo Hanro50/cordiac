@@ -1,0 +1,27 @@
+# In which mode should the plugin run?
+mode: server
+# The bot token fot the discord bot.
+token: Token here
+# Should the bot use webhooks if they're available?
+useWebHooks: true
+# Should we show join messages?
+showJoinMessages: true
+# Should we show leave messages?
+showLeaveMessages: true
+# Should we show messages related to a player being killed?
+showDeathMessages: true 
+# Should we pop up a message for when a player collects an advancement?
+showAdvancementMessages: true 
+# Should we pop up a message for when a player collects an achievement?
+showAchievementMessages: true
+# Should we force individual players?
+forceLink: false
+# Which language packs should we download by default?
+packs:
+- af_za
+- en_gb
+- en_pr
+- enws
+- fr_fr
+format: <%username%> %message%
+versionOverride: "default"
