@@ -98,7 +98,7 @@ public class DiscordServer extends Server {
         Member me;
         TextChannel txt;
 
-        public MessageObj(Client client, BaseMessage mess) {
+        public MessageObj(Client client, UUID id) {
             channel = channelLinker.getChannel(client.getID());
             log.info(client.getID());
             if (channel == null)
@@ -118,7 +118,7 @@ public class DiscordServer extends Server {
             String name = null;
             String pfp = null;
             String link = null;
-            String discordID = playerLNK.getDiscordID(mess.getPlayerID());
+            String discordID = playerLNK.getDiscordID(id);
             if (discordID != null)
                 try {
                     Member mem = guild.retrieveMemberById(discordID).complete();
@@ -141,13 +141,17 @@ public class DiscordServer extends Server {
                 }
 
             if (name == null)
-                name = bridge.getUserName(mess.getPlayerID());
+                name = bridge.getUserName(id);
             if (pfp == null)
-                pfp = "https://mc-heads.net/avatar/" + mess.getPlayerID();
+                pfp = "https://mc-heads.net/avatar/" + id;
 
             finalName = name;
             finalProfilePic = pfp;
             finalLink = link;
+        }
+
+        public MessageObj(Client client, BaseMessage mess) {
+            this(client, mess.getPlayerID());
         }
 
     }
@@ -196,17 +200,17 @@ public class DiscordServer extends Server {
 
     public Color getColour(String namespace) {
         if (namespace.startsWith("advancements.adventure"))
-            return Color.orange;
+            return new Color(254, 109, 0);
         if (namespace.startsWith("advancements.empty"))
             return Color.black;
         if (namespace.startsWith("advancements.end"))
-            return Color.magenta;
+            return new Color(144, 0, 117);
         if (namespace.startsWith("advancements.husbandry"))
-            return Color.yellow;
+            return new Color(164, 78, 43);
         if (namespace.startsWith("advancements.nether"))
-            return Color.red;
+            return new Color(254, 59, 0);
         if (namespace.startsWith("advancements.story"))
-            return Color.blue;
+            return new Color(0, 94, 156);
         if (namespace.startsWith("advancements.sad_label"))
             return Color.pink;
         return Color.white;
@@ -242,12 +246,16 @@ public class DiscordServer extends Server {
         } catch (messExp e) {
             return;
         }
+        String filler = "???";
+        if (achievement.getNameSpace().name.equals("achievement.openInventory")) {
+            filler = "e";
+        }
         EmbedBuilder emb = new EmbedBuilder();
         emb.setAuthor(mess.finalName, mess.finalLink,
                 mess.finalProfilePic);
-        emb.setTitle(langParser.parse(achievement.getNameSpace()));
-        emb.setDescription(langParser.parse(achievement.getNameSpace() + ".desc"));
-        emb.setColor(Color.LIGHT_GRAY);
+        emb.setTitle(langParser.parse(achievement.getNameSpace().name));
+        emb.setDescription(langParser.parse(achievement.getNameSpace().name + ".desc", filler));
+        emb.setColor(achievement.getNameSpace().colour);
         mess.txt.sendMessageEmbeds(emb.build()).submit();
     }
 
@@ -304,18 +312,32 @@ public class DiscordServer extends Server {
         EmbedBuilder emb = new EmbedBuilder();
 
         if (isPlayer) {
-            cause = bridge.getUserName(death.getAttacker());
-
+            try {
+                System.out.print("IS PLAYER!");
+                MessageObj attacker = new MessageObj(client, death.getAttacker());
+                cause = attacker.finalName;
+            } catch (messExp e) {
+                e.printStackTrace();
+                cause = bridge.getUserName(death.getAttacker());
+            }
         }
+        boolean hasPlayer = langParser.has(deathMess + ".player");
+        log.info(cause == null ? "NULL" : cause.toString());
         if (cause != null) {
             if (!isPlayer && !death.isCustomized()) {
-                if (langParser.has(cause) && langParser.has(deathMess + ".player")) {
+                if (langParser.has(cause.toLowerCase())) {
                     cause = langParser.parse(cause.toLowerCase());
-                    deathMess += ".player";
-                } else {
+                    if (hasPlayer)
+                        deathMess += ".player";
+                } else if (langParser.has(cause.toLowerCase() + ".name")) {
+                    cause = langParser.parse(cause.toLowerCase() + ".name");
+                    if (hasPlayer)
+                        deathMess += ".player";
+                } else if (!hasPlayer) {
+                    log.info(cause);
                     cause = null;
                 }
-            } else if (langParser.has(deathMess + ".player")) {
+            } else if (hasPlayer) {
                 deathMess += ".player";
             }
         }
@@ -325,7 +347,7 @@ public class DiscordServer extends Server {
         emb.setAuthor(langParser.parse(deathMess, mess.finalName, cause, item), mess.finalLink,
                 mess.finalProfilePic);
 
-        emb.setColor(Color.red);
+        emb.setColor( new Color(254, 35, 0));
         mess.txt.sendMessageEmbeds(emb.build()).submit();
     }
 

@@ -5,5 +5,6 @@
         "gson",
         "minnced",
         "tion"
-    ]
+    ],
+    "java.compile.nullAnalysis.mode": "disabled"
 }

@@ -78,6 +78,8 @@ public class OldPlugin implements Listener, Client {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onAchievement(PlayerAchievementAwardedEvent achievement) {
+        plugin.getLogger().info(achievement.getAchievement().name());
+        
         server.sendAchievement(this, new Achievement(achievement.getPlayer().getUniqueId(),
                 ReMappings.AchievementTranslate(achievement.getAchievement())));
     }

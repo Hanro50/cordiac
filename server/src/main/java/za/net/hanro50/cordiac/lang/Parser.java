@@ -20,7 +20,7 @@ import za.net.hanro50.cordiac.core.Util;
 
 public class Parser {
     final static String manifest = "https://piston-meta.mojang.com/mc/game/version_manifest.json";
-    final static Gson gson = new GsonBuilder().setLenient().create();
+    final static Gson gson = new GsonBuilder().create();
     final static Type mapToken = new TypeToken<Map<String, String>>() {
     }.getType();
     final Logger logger;
@@ -62,7 +62,7 @@ public class Parser {
         this.logger = bridge.getLogger();
         this.base = new File(bridge.getRoot(), "lang");
         base.mkdir();
-        String data = new String(new URL(manifest).openStream().readAllBytes());
+        String data = new String(Util.readAndClose(new URL(manifest).openStream()));
         ManifestJson manifests = gson.fromJson(data, ManifestJson.class);
         String assets = null;
         cache = new File(base, bridge.getMinecraftVersion());
@@ -73,10 +73,10 @@ public class Parser {
                 System.out.println(manifest.id + "<===>" + bridge.getMinecraftVersion());
                 if (manifest.id.startsWith(bridge.getMinecraftVersion())) {
                     System.out.println(gson.toJson(manifest));
-                    String data2 = new String(new URL(manifest.url).openStream().readAllBytes());
+                    String data2 = new String(Util.readAndClose(new URL(manifest.url).openStream()));
                     Version versionJson = gson.fromJson(data2, Version.class);
                     System.out.println(versionJson.assetIndex.url);
-                    assets = new String(new URL(versionJson.assetIndex.url).openStream().readAllBytes());
+                    assets = new String(Util.readAndClose(new URL(versionJson.assetIndex.url).openStream()));
                     Util.write(sFile, assets);
                     break;
                 }
@@ -100,15 +100,20 @@ public class Parser {
                     try {
                         logger.info("Downloading language : " + name);
                         String d = new String(
-                                new URL("https://resources.download.minecraft.net/" + v.hash.substring(0, 2) + "/"
+                            Util.readAndClose(new URL("https://resources.download.minecraft.net/" + v.hash.substring(0, 2) + "/"
                                         + v.hash)
-                                        .openStream().readAllBytes());
+                                        .openStream()));
                         // We need to convert the output to JSON
                         if (langParser) {
                             String done = "{";
                             for (String line : d.split("\n")) {
-                                if (line.contains("=")) {
+                                if (line.contains("=") && !line.contains("\"")) {
                                     String[] items = line.split("=");
+                                    logger.info(items[0]);
+                                    if (items[0].startsWith("entity.") && items[0].endsWith(".name")) {
+                                        items[0] = "entity.minecraft."
+                                                + items[0].substring(7, items[0].length() - 5).toLowerCase();
+                                    }
                                     done += "\"" + items[0] + "\":\"" + items[1] + "\",";
                                 }
                             }

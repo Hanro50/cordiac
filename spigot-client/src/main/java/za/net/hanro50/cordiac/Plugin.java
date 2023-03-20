@@ -108,9 +108,10 @@ public class Plugin implements Listener, Client {
 
             // TNT can sometimes do weird stuff
             if (Damager != null) {
-
-                Mob = "entity.minecraft." + Damager.getType().toString();
-
+                if (Damager.getType().toString().equals(Damager.getType().toString().toUpperCase()))
+                    Mob = "entity.minecraft." + Damager.getType().toString().toLowerCase();
+                else
+                    Mob = "entity.minecraft." + Damager.getType().toString().toLowerCase();
                 if (Damager.getCustomName() != null) {
                     Mob = Damager.getCustomName();
                 }

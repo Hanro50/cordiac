@@ -2,6 +2,8 @@ package za.net.hanro50.cordiac;
 
 import org.bukkit.Achievement;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import java.awt.Color;
+import za.net.hanro50.cordiac.api.messages.Achievement.Struct;
 @SuppressWarnings("deprecation")
 public class ReMappings {
 
@@ -69,77 +71,78 @@ public class ReMappings {
     }
 
 
-    public static String AchievementTranslate(Achievement Ach) {
+
+    public static Struct AchievementTranslate(Achievement Ach) {
         switch (Ach) {
             case ACQUIRE_IRON:
-                return "achievement.acquireIron";
+                return new Struct("achievement.acquireIron", new Color(254, 59, 0));
             case BAKE_CAKE:
-                return "achievement.bakeCake";
+                return new Struct("achievement.bakeCake", new Color(254, 189, 0));
             case BOOKCASE:
-                return "achievement.bookcase";
+                return new Struct("achievement.bookcase", new Color(0, 94, 156));
             case BREED_COW:
-                return "achievement.breedCow";
+                return new Struct("achievement.breedCow", new Color(254, 189, 0));
             case BREW_POTION:
-                return "achievement.acquireIron";
+                return new Struct("achievement.potion", new Color(144, 0, 117));
             case BUILD_BETTER_PICKAXE:
-                return "achievement.buildBetterPickaxe";
+                return new Struct("achievement.buildBetterPickaxe", new Color(254, 59, 0));
             case BUILD_FURNACE:
-                return "achievement.buildFurnace";
+                return new Struct("achievement.buildFurnace", new Color(254, 59, 0));
             case BUILD_HOE:
-                return "achievement.buildHoe";
+                return new Struct("achievement.buildHoe", new Color(254, 189, 0));
             case BUILD_PICKAXE:
-                return "achievement.buildPickaxe";
+                return new Struct("achievement.buildPickaxe", new Color(254, 59, 0));
             case BUILD_SWORD:
-                return "achievement.buildSword";
+                return new Struct("achievement.buildSword", new Color(254, 59, 0));
             case BUILD_WORKBENCH:
-                return "achievement.buildWorkBench";
+                return new Struct("achievement.buildWorkBench", new Color(0, 94, 156));
             case COOK_FISH:
-                return "achievement.cookFish";
+                return new Struct("achievement.cookFish", new Color(254, 189, 0));
             case DIAMONDS_TO_YOU:
-                return "achievement.diamondsToYou";
+                return new Struct("achievement.diamondsToYou", new Color(0, 94, 156));
             case ENCHANTMENTS:
-                return "achievement.enchantments";
+                return new Struct("achievement.enchantments", new Color(144, 0, 117));
             case END_PORTAL:
-                return "achievement.theEnd";
+                return new Struct("achievement.theEnd", new Color(144, 0, 117));
             case EXPLORE_ALL_BIOMES:
-                return "achievement.exploreAllBiomes";
+                return new Struct("achievement.exploreAllBiomes", Color.pink);
             case FLY_PIG:
-                return "achievement.flyPig";
+                return new Struct("achievement.flyPig", Color.pink);
             case FULL_BEACON:
-                return "achievement.fullBeacon";
+                return new Struct("achievement.fullBeacon", new Color(144, 0, 117));
             case GET_BLAZE_ROD:
-                return "achievement.blazeRod";
+                return new Struct("achievement.blazeRod", new Color(254, 59, 0));
             case GET_DIAMONDS:
-                return "achievement.diamonds";
+                return new Struct("achievement.diamonds", new Color(0, 94, 156));
             case GHAST_RETURN:
-                return "achievement.ghast";
+                return new Struct("achievement.ghast", Color.white);
             case KILL_COW:
-                return "achievement.killCow";
+                return new Struct("achievement.killCow", new Color(254, 59, 0));
             case KILL_ENEMY:
-                return "achievement.killEnemy";
+                return new Struct("achievement.killEnemy", new Color(254, 59, 0));
             case KILL_WITHER:
-                return "achievement.killWither";
+                return new Struct("achievement.killWither", new Color(144, 0, 117));
             case MAKE_BREAD:
-                return "achievement.makeBread";
+                return new Struct("achievement.makeBread", new Color(254, 189, 0));
             case MINE_WOOD:
-                return "achievement.mineWood";
+                return new Struct("achievement.mineWood", new Color(254, 189, 0));
             case NETHER_PORTAL:
-                return "achievement.portal";
+                return new Struct("achievement.portal", new Color(144, 0, 117));
             case ON_A_RAIL:
-                return "achievement.onARail";
+                return new Struct("achievement.onARail", new Color(254, 59, 0));
             case OPEN_INVENTORY:
-                return "achievement.openInventory";
+                return new Struct("achievement.openInventory", new Color(103, 254, 16));
             case OVERKILL:
-                return "achievement.overkill";
+                return new Struct("achievement.overkill", new Color(254, 59, 0));
             case OVERPOWERED:
-                return "achievement.acquireIron";
+                return new Struct("achievement.acquireIron", new Color(254, 59, 0));
             case SNIPE_SKELETON:
-                return "achievement.snipeSkeleton";
+                return new Struct("achievement.snipeSkeleton", new Color(254, 59, 0));
             case SPAWN_WITHER:
-                return "achievement.spawnWither";
+                return new Struct("achievement.spawnWither", new Color(144, 0, 117));
             case THE_END:
-                return "achievement.theEnd2";
+                return new Struct("achievement.theEnd2", new Color(144, 0, 117));
         }
-        return "achievement.unknown";
+        return new Struct("achievement.unknown", new Color(144, 0, 117));
     }
 }

@@ -26,3 +26,5 @@ packs:
 - fr_ca 
 format: <%username%> %message%
 versionOverride: "default"
+linkText: Please DM the bot the following message "!link %s"
+unLinkText: Request has been sent to unlink your profile!

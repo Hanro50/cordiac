@@ -1,0 +1,30 @@
+{
+    "loader": {
+        "name": "java_plain",
+        "version": "1.0"
+    },
+    "license": "MIT",
+    "global": {
+        "version": "8.0.0",
+        "contributors": [
+            {
+                "name": "Hanro50",
+                "description": "Lead Developer"
+            }
+        ],
+        "dependencies": [
+            {
+                "id": "spongeapi",
+                "version": "8.0.0"
+            }
+        ]
+    },
+    "plugins": [
+        {
+            "id": "cordiac",
+            "name": "Cordiac discord integration",
+            "entrypoint": "za.net.hanro50.cordiac.Cordiac",
+            "description": "Manages the test plugins"
+        }
+    ]
+}

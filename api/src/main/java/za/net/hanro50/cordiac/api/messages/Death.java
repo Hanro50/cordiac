@@ -9,7 +9,6 @@ public class Death extends BaseMessage {
 
     public Death(UUID playerID) {
         super(playerID);
-        // TODO Auto-generated constructor stub
     }
 
     @Expose
